@@ -662,14 +662,14 @@ function renderNav() {
 function renderProgress() {
   const answered = questions.filter(isAnswered).length;
   const pct = Math.round((answered / questions.length) * 100);
-  els.progressText.textContent = `${answered} de ${questions.length} contestadas`;
+  els.progressText.textContent = `${answered} of ${questions.length} answered`;
   els.marksText.textContent = `${answeredMarks()} / 100 marks`;
   els.progressBar.style.width = `${pct}%`;
 }
 
 function renderDiagram(q) {
   if (!q.diagram) return "";
-  return `<div class="mini-diagram" aria-label="Diagrama de bloques">
+  return `<div class="mini-diagram" aria-label="Block diagram">
     <strong>Estado inicial</strong>
     <div class="blocks">${q.diagram.map(b => `<span class="block ${b ? "" : "blank-block"}">${escapeHtml(b || ".")}</span>`).join("")}</div>
   </div>`;
@@ -692,15 +692,15 @@ function renderInput(q) {
       <label class="match-row">
         <strong>${escapeHtml(pair)}</strong>
         <select data-pair="${escapeHtml(pair)}">
-          <option value="">Selecciona una opción</option>
+          <option value="">Select an option</option>
           ${q.choices.map(choice => `<option value="${escapeHtml(choice)}" ${saved[pair] === choice ? "selected" : ""}>${escapeHtml(choice)}</option>`).join("")}
         </select>
       </label>
     `).join("")}</div>`;
   }
 
-  return `<textarea id="writtenAnswer" placeholder="Escribe tu respuesta aqui...">${escapeHtml(value || "")}</textarea>
-    <p class="answer-note">Tu respuesta se guarda automaticamente en este navegador.</p>`;
+  return `<textarea id="writtenAnswer" placeholder="Write your answer here...">${escapeHtml(value || "")}</textarea>
+    <p class="answer-note">Your answer is saved automatically in this browser.</p>`;
 }
 
 function normalizeText(value) {
@@ -764,10 +764,10 @@ function scoreTextQuestion(q, answer) {
     return {
       score: 0,
       max: q.marks,
-      verdict: "Sin respuesta",
-      why: "No hay suficiente contenido para comparar con el mark scheme.",
+      verdict: "No answer",
+      why: "There is not enough content to compare with the mark scheme.",
       matched: [],
-      missing: ["Incluye los puntos clave del mark scheme antes de pedir corrección."]
+      missing: ["Include the key mark scheme points before requesting feedback."]
     };
   }
 
@@ -790,12 +790,12 @@ function scoreTextQuestion(q, answer) {
 
   if (ratio === 1) score = q.marks;
 
-  const verdict = score === q.marks ? "Probablemente completa" : score > 0 ? "Parcialmente correcta" : "Probablemente insuficiente";
+  const verdict = score === q.marks ? "Probably complete" : score > 0 ? "Partially correct" : "Probably insufficient";
   const why = score === q.marks
-    ? "La respuesta contiene las ideas principales esperadas por el mark scheme."
+    ? "The answer contains the main ideas expected by the mark scheme."
     : score > 0
-      ? "La respuesta contiene algunas ideas válidas, pero faltan puntos clave o el enlace explicativo no está del todo desarrollado."
-      : "No se han detectado suficientes ideas del mark scheme.";
+      ? "The answer contains some valid ideas, but key points are missing or the explanation is not fully developed."
+      : "Not enough mark scheme ideas were detected.";
 
   return { score, max: q.marks, verdict, why, matched, missing };
 }
@@ -826,16 +826,16 @@ function scoreExtendedQuestion(q, text) {
     score,
     max: 8,
     verdict: score >= 6 ? "Nivel alto probable" : score >= 4 ? "Nivel medio probable" : score > 0 ? "Nivel bajo probable" : "Probablemente insuficiente",
-    why: "La estimación usa los level descriptors: equilibrio entre puntos positivos y negativos, desarrollo con ejemplos y conclusión.",
+    why: "This estimate uses the level descriptors: balance between positive and negative points, development with examples, and a conclusion.",
     matched: [
       `${posCount} ideas positivas detectadas`,
       `${negCount} ideas negativas detectadas`,
-      hasConclusion ? "conclusión/balance detectado" : "sin conclusión clara"
+      hasConclusion ? "conclusion/balance detected" : "no clear conclusion"
     ],
     missing: [
-      posCount < 3 ? "Añade más beneficios concretos." : "",
-      negCount < 3 ? "Añade más drawbacks concretos." : "",
-      !hasConclusion ? "Añade una conclusión que compare ambos lados." : ""
+      posCount < 3 ? "Add more specific benefits." : "",
+      negCount < 3 ? "Add more specific drawbacks." : "",
+      !hasConclusion ? "Add a conclusion that compares both sides." : ""
     ].filter(Boolean)
   };
 }
@@ -843,13 +843,13 @@ function scoreExtendedQuestion(q, text) {
 function scoreQuestion(q) {
   if (q.type === "mcq") {
     const selected = state.answers[q.code];
-    if (!selected) return { score: 0, max: q.marks, verdict: "Sin respuesta", why: "Selecciona una opción antes de corregir.", matched: [], missing: [q.answer] };
+    if (!selected) return { score: 0, max: q.marks, verdict: "No answer", why: "Select an option before requesting feedback.", matched: [], missing: [q.answer] };
     const correct = selected === q.answer;
     return {
       score: correct ? q.marks : 0,
       max: q.marks,
-      verdict: correct ? "Correcta" : "Incorrecta",
-      why: correct ? "Coincide con el mark scheme." : `El mark scheme acepta: ${q.answer}.`,
+      verdict: correct ? "Correct" : "Incorrect",
+      why: correct ? "This matches the mark scheme." : `The mark scheme accepts: ${q.answer}.`,
       matched: correct ? [q.answer] : [],
       missing: correct ? [] : [q.answer]
     };
@@ -861,8 +861,8 @@ function scoreQuestion(q) {
     return {
       score,
       max: q.marks,
-      verdict: score === q.marks ? "Correcta" : score > 0 ? "Parcialmente correcta" : "Incorrecta",
-      why: `${score} de ${q.marks} relaciones coinciden con el mark scheme.`,
+      verdict: score === q.marks ? "Correct" : score > 0 ? "Partially correct" : "Incorrect",
+      why: `${score} out of ${q.marks} matches are consistent with the mark scheme.`,
       matched: q.pairs.filter(pair => (state.answers[q.code] || {})[pair] === q.answer[pair]),
       missing
     };
@@ -881,17 +881,17 @@ function renderCorrection(q, result) {
       <p>${escapeHtml(result.why)}</p>
       <div class="feedback-columns">
         <div>
-          <strong>Detectado</strong>
-          <p>${escapeHtml(result.matched.length ? result.matched.join("; ") : "Nada claro todavía.")}</p>
+          <strong>Detected</strong>
+          <p>${escapeHtml(result.matched.length ? result.matched.join("; ") : "Nothing clear yet.")}</p>
         </div>
         <div>
-          <strong>Para mejorar</strong>
-          <p>${escapeHtml(result.missing.length ? result.missing.join("; ") : "No falta nada importante según esta estimación.")}</p>
+          <strong>To improve</strong>
+          <p>${escapeHtml(result.missing.length ? result.missing.join("; ") : "No important point is missing according to this estimate.")}</p>
         </div>
       </div>
       <details>
-        <summary>Ver respuesta modelo y consejo</summary>
-        <p><strong>Modelo:</strong> ${escapeHtml(q.model)}</p>
+        <summary>Show model answer and advice</summary>
+        <p><strong>Model:</strong> ${escapeHtml(q.model)}</p>
         <p><strong>Consejo:</strong> ${escapeHtml(q.advice)}</p>
         <p><strong>Evita:</strong> ${escapeHtml(q.avoid)}</p>
       </details>
@@ -900,13 +900,13 @@ function renderCorrection(q, result) {
 }
 
 function renderQuestionControls(q) {
-  const hintText = state.hints[q.code] ? "Ocultar hint" : "Mostrar hint";
-  const nextText = current === questions.length - 1 ? "Finalizar" : "Siguiente";
+  const hintText = state.hints[q.code] ? "Hide hint" : "Show hint";
+  const nextText = current === questions.length - 1 ? "Finish" : "Next";
   return `
     <div class="nav-controls inline-controls">
-      <button id="prevBtn" class="secondary" type="button" ${current === 0 ? "disabled" : ""}>Anterior</button>
+      <button id="prevBtn" class="secondary" type="button" ${current === 0 ? "disabled" : ""}>Previous</button>
       <button id="hintBtn" class="secondary" type="button">${hintText}</button>
-      <button id="checkBtn" class="secondary" type="button">Corrección</button>
+      <button id="checkBtn" class="secondary" type="button">Feedback</button>
       <button id="nextBtn" class="primary" type="button">${nextText}</button>
     </div>
   `;
@@ -915,7 +915,7 @@ function renderQuestionControls(q) {
 function renderQuestion() {
   const q = questions[current];
   els.topic.textContent = q.topic;
-  els.title.textContent = `Pregunta ${q.code}`;
+  els.title.textContent = `Question ${q.code}`;
 
   els.panel.innerHTML = `
     <article class="question-card">
@@ -1018,7 +1018,7 @@ function matchingScore(q) {
 
 function formatStudentAnswer(q) {
   const value = state.answers[q.code];
-  if (!value) return "Sin respuesta.";
+  if (!value) return "No answer.";
   if (q.type === "matching") {
     return q.pairs.map(pair => `${pair} -> ${value[pair] || "sin respuesta"}`).join("; ");
   }
@@ -1036,11 +1036,11 @@ function renderReview() {
   const percentage = Math.round((estimatedTotal / 100) * 100);
 
   els.reviewStats.innerHTML = `
-    <div class="stat"><span>Contestadas</span><strong>${answered}/${questions.length}</strong></div>
-    <div class="stat"><span>Estimación orientativa</span><strong>${estimatedTotal}/100</strong></div>
-    <div class="stat"><span>Porcentaje estimado</span><strong>${percentage}%</strong></div>
-    <div class="stat wide"><span>Aviso</span><strong>Puede variar</strong><p>La corrección escrita usa coincidencia de ideas clave del mark scheme. Un profesor puede ajustar la nota por claridad, contexto y desarrollo.</p></div>
-    <div class="stat wide"><span>Auto-check objetivo</span><strong>${correctMcq}/${mcqs.length} MCQ · ${matchScore}/3 matching</strong></div>
+    <div class="stat"><span>Answered</span><strong>${answered}/${questions.length}</strong></div>
+    <div class="stat"><span>Indicative estimate</span><strong>${estimatedTotal}/100</strong></div>
+    <div class="stat"><span>Estimated percentage</span><strong>${percentage}%</strong></div>
+    <div class="stat wide"><span>Important note</span><strong>This may vary</strong><p>Written-answer feedback uses key-idea matching against the mark scheme. A teacher may adjust the mark for clarity, context and development.</p></div>
+    <div class="stat wide"><span>Objective auto-check</span><strong>${correctMcq}/${mcqs.length} MCQ · ${matchScore}/3 matching</strong></div>
   `;
 
   els.reviewContent.innerHTML = results.map(({ q, result }) => {
@@ -1061,21 +1061,21 @@ function renderReview() {
         </div>
         <div class="review-grid">
           <div class="student-answer">
-            <strong>Tu respuesta</strong>
+            <strong>Your answer</strong>
             <p>${escapeHtml(formatStudentAnswer(q))}</p>
           </div>
           <div class="model-answer">
-            <strong>Respuesta modelo</strong>
+            <strong>Model answer</strong>
             <p>${escapeHtml(q.model)}</p>
           </div>
         </div>
         <div class="review-grid">
           <div class="advice">
-            <strong>Como contestar</strong>
+            <strong>How to answer</strong>
             <p>${escapeHtml(q.advice)}</p>
           </div>
           <div class="avoid">
-            <strong>Que evitar</strong>
+            <strong>What to avoid</strong>
             <p>${escapeHtml(q.avoid)}</p>
           </div>
         </div>
@@ -1090,20 +1090,20 @@ function downloadAttempt() {
   const results = questions.map(q => ({ q, result: scoreQuestion(q) }));
   const estimatedTotal = results.reduce((sum, item) => sum + item.result.score, 0);
   const lines = [
-    "IGCSE ICT Paper 1 Mock - intento del alumno",
-    `Contestadas: ${questions.filter(isAnswered).length}/${questions.length}`,
-    `Estimacion orientativa: ${estimatedTotal}/100`,
-    "Aviso: la puntuacion escrita es una estimacion basada en ideas clave del mark scheme y puede variar.",
+    "IGCSE ICT Paper 1 Mock - student attempt",
+    `Answered: ${questions.filter(isAnswered).length}/${questions.length}`,
+    `Indicative estimate: ${estimatedTotal}/100`,
+    "Note: the written-answer score is an estimate based on key mark scheme ideas and may vary.",
     ""
   ];
 
   results.forEach(({ q, result }) => {
     lines.push(`${q.code} (${q.marks} marks)`);
     lines.push(q.prompt);
-    lines.push(`Respuesta: ${formatStudentAnswer(q)}`);
-    lines.push(`Estimacion: ${result.score}/${result.max} - ${result.verdict}`);
-    lines.push(`Por que: ${result.why}`);
-    lines.push(`Modelo: ${q.model}`);
+    lines.push(`Answer: ${formatStudentAnswer(q)}`);
+    lines.push(`Estimate: ${result.score}/${result.max} - ${result.verdict}`);
+    lines.push(`Why: ${result.why}`);
+    lines.push(`Model: ${q.model}`);
     lines.push("");
   });
 
@@ -1111,7 +1111,7 @@ function downloadAttempt() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "igcse-ict-paper1-intento.txt";
+  link.download = "igcse-ict-paper1-attempt.txt";
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -1145,7 +1145,7 @@ els.nav.addEventListener("click", event => {
 
 els.finish.addEventListener("click", renderReview);
 els.reset.addEventListener("click", () => {
-  const ok = confirm("Esto borrara las respuestas guardadas en este navegador. ¿Quieres reiniciar el intento?");
+  const ok = confirm("This will delete the answers saved in this browser. Do you want to reset the attempt?");
   if (!ok) return;
   state = { answers: {}, hints: {}, checked: {}, current: 0, secondsLeft: 90 * 60 };
   current = 0;
