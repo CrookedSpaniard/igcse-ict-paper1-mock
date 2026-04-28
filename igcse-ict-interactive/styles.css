@@ -199,7 +199,7 @@ a:hover {
 
 .workspace {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
 }
 
@@ -427,6 +427,11 @@ input:focus-visible {
   padding: 16px 34px;
 }
 
+.inline-controls {
+  margin-top: 22px;
+  padding: 16px 0 0;
+}
+
 .primary,
 .secondary {
   border-radius: 6px;
@@ -434,6 +439,12 @@ input:focus-visible {
   font-weight: 750;
   min-height: 42px;
   padding: 10px 16px;
+}
+
+.primary:disabled,
+.secondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .primary {

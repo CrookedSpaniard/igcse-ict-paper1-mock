@@ -600,10 +600,10 @@ const els = {
   progressText: document.getElementById("progressText"),
   marksText: document.getElementById("marksText"),
   progressBar: document.getElementById("progressBar"),
-  prev: document.getElementById("prevBtn"),
-  next: document.getElementById("nextBtn"),
-  hint: document.getElementById("hintBtn"),
-  check: document.getElementById("checkBtn"),
+  prev: null,
+  next: null,
+  hint: null,
+  check: null,
   finish: document.getElementById("finishBtn"),
   reset: document.getElementById("resetBtn"),
   timer: document.getElementById("timer"),
@@ -899,13 +899,23 @@ function renderCorrection(q, result) {
   `;
 }
 
+function renderQuestionControls(q) {
+  const hintText = state.hints[q.code] ? "Ocultar hint" : "Mostrar hint";
+  const nextText = current === questions.length - 1 ? "Finalizar" : "Siguiente";
+  return `
+    <div class="nav-controls inline-controls">
+      <button id="prevBtn" class="secondary" type="button" ${current === 0 ? "disabled" : ""}>Anterior</button>
+      <button id="hintBtn" class="secondary" type="button">${hintText}</button>
+      <button id="checkBtn" class="secondary" type="button">Corrección</button>
+      <button id="nextBtn" class="primary" type="button">${nextText}</button>
+    </div>
+  `;
+}
+
 function renderQuestion() {
   const q = questions[current];
   els.topic.textContent = q.topic;
   els.title.textContent = `Pregunta ${q.code}`;
-  els.hint.textContent = state.hints[q.code] ? "Ocultar hint" : "Mostrar hint";
-  els.prev.disabled = current === 0;
-  els.next.textContent = current === questions.length - 1 ? "Finalizar" : "Siguiente";
 
   els.panel.innerHTML = `
     <article class="question-card">
@@ -922,13 +932,36 @@ function renderQuestion() {
       </div>
       ${renderInput(q)}
       ${state.checked[q.code] ? renderCorrection(q, scoreQuestion(q)) : ""}
+      ${renderQuestionControls(q)}
     </article>
   `;
 
   bindAnswerInput(q);
+  bindQuestionControls(q);
   renderNav();
   renderProgress();
   saveState();
+}
+
+function bindQuestionControls(q) {
+  els.prev = document.getElementById("prevBtn");
+  els.next = document.getElementById("nextBtn");
+  els.hint = document.getElementById("hintBtn");
+  els.check = document.getElementById("checkBtn");
+
+  els.prev.addEventListener("click", () => goTo(current - 1));
+  els.next.addEventListener("click", () => {
+    if (current === questions.length - 1) renderReview();
+    else goTo(current + 1);
+  });
+  els.hint.addEventListener("click", () => {
+    state.hints[q.code] = !state.hints[q.code];
+    renderQuestion();
+  });
+  els.check.addEventListener("click", () => {
+    state.checked[q.code] = true;
+    renderQuestion();
+  });
 }
 
 function bindAnswerInput(q) {
@@ -1110,21 +1143,6 @@ els.nav.addEventListener("click", event => {
   if (row) goTo(Number(row.dataset.index));
 });
 
-els.prev.addEventListener("click", () => goTo(current - 1));
-els.next.addEventListener("click", () => {
-  if (current === questions.length - 1) renderReview();
-  else goTo(current + 1);
-});
-els.hint.addEventListener("click", () => {
-  const q = questions[current];
-  state.hints[q.code] = !state.hints[q.code];
-  renderQuestion();
-});
-els.check.addEventListener("click", () => {
-  const q = questions[current];
-  state.checked[q.code] = true;
-  renderQuestion();
-});
 els.finish.addEventListener("click", renderReview);
 els.reset.addEventListener("click", () => {
   const ok = confirm("Esto borrara las respuestas guardadas en este navegador. ¿Quieres reiniciar el intento?");
