@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IGCSE ICT Paper 1 Interactive Mock</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegacion del examen">
+        <div class="brand">
+          <span class="eyebrow">Pearson Edexcel IGCSE ICT</span>
+          <h1>Paper 1 Mock</h1>
+          <p>100 marks · 1h 30m · Topics 1-4</p>
+        </div>
+
+        <div class="timer-block">
+          <div>
+            <span class="label">Tiempo sugerido</span>
+            <strong id="timer">90:00</strong>
+          </div>
+          <button id="timerToggle" class="icon-button" type="button" aria-label="Iniciar temporizador" title="Iniciar/pausar">▶</button>
+        </div>
+
+        <div class="progress-wrap" aria-label="Progreso">
+          <div class="progress-head">
+            <span id="progressText">0 de 0 contestadas</span>
+            <span id="marksText">0 / 100 marks</span>
+          </div>
+          <div class="progress-track"><div id="progressBar"></div></div>
+        </div>
+
+        <nav id="questionNav" class="question-nav" aria-label="Preguntas"></nav>
+
+        <div class="sidebar-actions">
+          <button id="finishBtn" class="primary" type="button">Finalizar intento</button>
+          <button id="resetBtn" class="secondary" type="button">Reiniciar intento</button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <span id="topicLabel" class="topic-label">Topic</span>
+            <h2 id="questionTitle">Pregunta</h2>
+          </div>
+          <div class="topbar-links">
+            <a href="../IGCSE_ICT_Paper_1_Mock_Question_Paper.pdf" target="_blank" rel="noreferrer">PDF examen</a>
+            <a href="../IGCSE_ICT_Paper_1_Mock_Mark_Scheme.pdf" target="_blank" rel="noreferrer">PDF mark scheme</a>
+          </div>
+        </header>
+
+        <section id="questionPanel" class="question-panel" aria-live="polite"></section>
+
+        <footer class="nav-controls">
+          <button id="prevBtn" class="secondary" type="button">Anterior</button>
+          <button id="hintBtn" class="secondary" type="button">Mostrar hint</button>
+          <button id="checkBtn" class="secondary" type="button">Corrección</button>
+          <button id="nextBtn" class="primary" type="button">Siguiente</button>
+        </footer>
+      </main>
+    </div>
+
+    <div id="reviewModal" class="modal-backdrop" hidden>
+      <section class="review-modal" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+        <div class="review-head">
+          <div>
+            <span class="topic-label">Revisión final</span>
+            <h2 id="reviewTitle">Estimación, respuestas modelo y consejos</h2>
+          </div>
+          <button id="closeReview" class="icon-button" type="button" aria-label="Cerrar revisión" title="Cerrar">×</button>
+        </div>
+        <div id="reviewStats" class="review-stats"></div>
+        <div id="reviewContent" class="review-content"></div>
+        <div class="review-actions">
+          <button id="downloadAttempt" class="secondary" type="button">Descargar intento</button>
+          <button id="backToExam" class="primary" type="button">Volver al examen</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
